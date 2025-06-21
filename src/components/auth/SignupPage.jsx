@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { AuthFormContainer } from './AuthFormContainer';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { AppwriteException } from 'appwrite'; // CORRIGIDO: Importado de 'appwrite'
 
 export const SignupPage = ({ setAuthView }) => {
     const { signup } = useAuth();
@@ -19,7 +20,21 @@ export const SignupPage = ({ setAuthView }) => {
         try {
             await signup(email, password, name);
         } catch (err) {
-            setError('Falha ao criar conta. O e-mail pode já estar em uso.');
+             if (err instanceof AppwriteException) {
+                switch (err.code) {
+                    case 400:
+                        setError('Dados inválidos. A senha deve ter no mínimo 8 caracteres.');
+                        break;
+                    case 409:
+                        setError('Este e-mail já está em uso por outra conta.');
+                        break;
+                    default:
+                        setError('Ocorreu um erro ao criar a conta.');
+                        break;
+                }
+            } else {
+                setError('Ocorreu um erro inesperado.');
+            }
             console.error(err);
         } finally {
             setLoading(false);

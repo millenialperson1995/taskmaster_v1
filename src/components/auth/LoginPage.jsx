@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { AuthFormContainer } from './AuthFormContainer';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { AppwriteException } from 'appwrite'; // CORRIGIDO: Importado de 'appwrite'
 
 export const LoginPage = ({ setAuthView }) => {
     const { login } = useAuth();
@@ -18,7 +19,21 @@ export const LoginPage = ({ setAuthView }) => {
         try {
             await login(email, password);
         } catch (err) {
-            setError('Falha ao fazer login. Verifique seu e-mail e senha.');
+            if (err instanceof AppwriteException) {
+                switch (err.code) {
+                    case 400:
+                        setError('Requisição inválida. Verifique os campos preenchidos.');
+                        break;
+                    case 401:
+                        setError('E-mail ou senha inválidos. Tente novamente.');
+                        break;
+                    default:
+                        setError('Ocorreu um erro. Por favor, tente mais tarde.');
+                        break;
+                }
+            } else {
+                setError('Ocorreu um erro inesperado.');
+            }
             console.error(err);
         } finally {
             setLoading(false);

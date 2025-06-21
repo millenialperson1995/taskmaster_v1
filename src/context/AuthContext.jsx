@@ -1,8 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
-// --- CORREÇÃO APLICADA AQUI ---
 import { AppwriteException } from 'appwrite';
 import { account, ID } from '../api/appwrite';
-// --------------------------------
 
 export const AuthContext = createContext();
 

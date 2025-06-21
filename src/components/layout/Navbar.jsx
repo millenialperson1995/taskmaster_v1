@@ -1,8 +1,9 @@
-import { Moon, Sun, Bell, LogOut, CheckSquare } from 'lucide-react';
+import { Moon, Sun, Bell, LogOut, CheckSquare, BellRing } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 
-export const Navbar = ({ onRequestNotificationPermission, notificationPermission }) => {
+// MODIFICADO: Recebe 'isSubscribed'
+export const Navbar = ({ onRequestNotificationPermission, notificationPermission, isSubscribed }) => {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
 
@@ -15,8 +16,17 @@ export const Navbar = ({ onRequestNotificationPermission, notificationPermission
             <span className="text-2xl font-bold text-slate-800 dark:text-white">TaskMaster</span>
           </div>
           <div className="flex items-center gap-2">
-            {notificationPermission !== 'granted' && (
-              <button onClick={onRequestNotificationPermission} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200" aria-label="Ativar notificações" title="Ativar notificações"><Bell size={22} /></button>
+            {/* MODIFICADO: O botão só aparece se as notificações não foram concedidas E o usuário não está inscrito */}
+            {notificationPermission !== 'granted' && !isSubscribed && (
+              <button onClick={onRequestNotificationPermission} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200" aria-label="Ativar notificações" title="Ativar notificações">
+                <Bell size={22} />
+              </button>
+            )}
+             {/* ADICIONADO: Mostra um ícone diferente se já estiver inscrito */}
+            {notificationPermission === 'granted' && isSubscribed && (
+              <div className="p-2 rounded-full text-green-500" title="Notificações ativas">
+                <BellRing size={22} />
+              </div>
             )}
             <button onClick={toggleTheme} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200" aria-label="Toggle theme">
               {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}

@@ -8,30 +8,24 @@ import { Header } from './components/layout/Header';
 import { ListView } from './views/ListView';
 import { CalendarView } from './views/CalendarView';
 import { DashboardView } from './views/DashboardView';
-import { useNotificationScheduler } from './hooks/useNotificationScheduler'; // ADICIONADO
+import { useNotificationScheduler } from './hooks/useNotificationScheduler';
+// CORRIGIDO: Importação sem chaves para um export default
+import usePushNotifications from './hooks/usePushNotifications'; 
 
 function TaskMasterApp() {
     const { isLoading } = useTasks();
     const [view, setView] = useState('list');
-    const [notificationPermission, setNotificationPermission] = useState('default');
+    
+    const { permission, isSubscribed, requestPermissionAndSubscribe } = usePushNotifications();
 
-    useNotificationScheduler(); // ADICIONADO: Ativa o agendador de notificações
-
-    useEffect(() => {
-        if ("Notification" in window) {
-            setNotificationPermission(Notification.permission);
-        }
-    }, []);
-
-    const requestNotificationPermission = () => {
-        Notification.requestPermission().then(setNotificationPermission);
-    };
+    useNotificationScheduler(); 
 
     return (
         <div className="bg-slate-100 dark:bg-slate-900 min-h-screen font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             <Navbar 
-                onRequestNotificationPermission={requestNotificationPermission} 
-                notificationPermission={notificationPermission}
+                onRequestNotificationPermission={requestPermissionAndSubscribe} 
+                notificationPermission={permission}
+                isSubscribed={isSubscribed}
             />
             <main className="container mx-auto p-4 max-w-5xl">
                 <Header view={view} setView={setView} />
