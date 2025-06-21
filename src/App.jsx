@@ -4,14 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Client, Account, Databases, ID, Query, AppwriteException } from 'appwrite';
 
-// --- 1. CONFIGURAÇÃO DO APPWRITE ---
-// Cole aqui as informações do seu projeto Appwrite
-
 const client = new Client();
 
 client
-    .setEndpoint('https://fra.cloud.appwrite.io/v1') // Seu Appwrite Endpoint
-    .setProject('6856132d0011afe2210e'); // <-- PREENCHA AQUI com seu Project ID
+    .setEndpoint('https://fra.cloud.appwrite.io/v1')
+    .setProject('6856132d0011afe2210e');
 
 const account = new Account(client);
 const databases = new Databases(client);
@@ -71,8 +68,8 @@ const TaskForm = ({ onSave, initialData = {}, onCancel, categories, addCategory 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
-    onSave({ 
-      ...initialData, text, category, priority, dueDate, 
+    onSave({
+      ...initialData, text, category, priority, dueDate: dueDate || null,
       reminderTime: dueDate ? reminderTime : '',
       recurrence: dueDate ? recurrence : 'none',
       completed: initialData.completed || false,
@@ -139,7 +136,7 @@ const TaskItem = ({ task, onUpdate, onDelete, onToggleComplete, categories, addC
   const priorityConfig = { 'Alta': { bg: 'bg-red-100 dark:bg-red-900/50', text: 'text-red-700 dark:text-red-300' }, 'Média': { bg: 'bg-yellow-100 dark:bg-yellow-900/50', text: 'text-yellow-700 dark:text-yellow-300' }, 'Baixa': { bg: 'bg-green-100 dark:bg-green-900/50', text: 'text-green-700 dark:text-green-300' } };
   const { bg, text } = priorityConfig[task.priority] || priorityConfig['Média'];
   const handleSave = (updatedTask) => { onUpdate(updatedTask); setIsEditing(false); };
-  const isOverdue = task.dueDate && !task.completed && new Date(`${task.dueDate}T23:59:59`) < new Date();
+  const isOverdue = task.dueDate && !task.completed && new Date(task.dueDate) < new Date(new Date().setHours(0, 0, 0, 0));
   const subtaskCount = task.subtasks?.length || 0;
   const completedSubtaskCount = task.subtasks?.filter(s => s.completed).length || 0;
   const isRecurring = task.recurrence && task.recurrence !== 'none';
@@ -153,7 +150,7 @@ const TaskItem = ({ task, onUpdate, onDelete, onToggleComplete, categories, addC
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 dark:text-slate-400 mt-1">
             <span className="flex items-center gap-1"><Tag size={14} /> {task.category}</span>
             <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${bg} ${text}`}><Flag size={14} />{task.priority}</span>
-            {task.dueDate && <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-500 font-semibold' : ''}`}><Clock size={14} /> {new Date(task.dueDate + 'T00:00:00').toLocaleDateString('pt-BR')}</span>}
+            {task.dueDate && <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-500 font-semibold' : ''}`}><Clock size={14} /> {new Date(task.dueDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>}
             {task.reminderTime && task.dueDate && <span className="flex items-center gap-1 text-blue-500"><Bell size={14}/> {task.reminderTime}</span>}
             {isRecurring && <span className="flex items-center gap-1 text-purple-500"><Repeat size={14}/> {task.recurrence === 'daily' ? 'Diária' : task.recurrence === 'weekly' ? 'Semanal' : 'Mensal'}</span>}
             {subtaskCount > 0 && <span className="flex items-center gap-1"><ListChecks size={14}/> {completedSubtaskCount}/{subtaskCount}</span>}
@@ -220,7 +217,15 @@ const CalendarView = ({ tasks }) => {
         <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: startDay }).map((_, i) => <div key={`empty-${i}`} className="border rounded-md border-slate-100 dark:border-slate-800"></div>)}
           {daysInMonth.map(day => {
-            const dayString = day.toISOString().split('T')[0]; const tasksForDay = tasks.filter(task => task.dueDate === dayString); const isToday = day.toDateString() === new Date().toDateString();
+            const tasksForDay = tasks.filter(task => {
+              if (!task.dueDate) return false;
+              const taskDate = new Date(task.dueDate);
+              // Compara ano, mês e dia em UTC para evitar problemas de fuso horário
+              return taskDate.getUTCFullYear() === day.getFullYear() &&
+                     taskDate.getUTCMonth() === day.getMonth() &&
+                     taskDate.getUTCDate() === day.getDate();
+            });
+            const isToday = day.toDateString() === new Date().toDateString();
             return (
               <div key={day.toString()} className={`border rounded-md p-2 h-32 flex flex-col ${isToday ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-500/30' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
                 <span className={`font-semibold ${isToday ? 'text-blue-600 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300'}`}>{day.getDate()}</span>
