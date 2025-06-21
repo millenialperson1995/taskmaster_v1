@@ -5,7 +5,8 @@ import { TaskForm } from '../components/tasks/TaskForm';
 import { TaskItem } from '../components/tasks/TaskItem';
 
 export const ListView = () => {
-  const { tasks, categories, setPendingTasks } = useTasks();
+  // Desestrutura os novos valores do hook
+  const { tasks, categories, setPendingTasks, fetchMoreTasks, hasMoreTasks, isFetchingMore } = useTasks();
 
   const [filterCategory, setFilterCategory] = useState('Todos');
   const [filterPriority, setFilterPriority] = useState('Todos');
@@ -24,6 +25,7 @@ export const ListView = () => {
   const dragItem = useRef();
   const dragOverItem = useRef();
 
+  // A lógica de Drag and Drop não precisa de alterações
   const handleDragStart = (e, position) => { dragItem.current = position; };
   const handleDragEnter = (e, position) => { dragOverItem.current = position; };
   const handleDragEnd = () => {
@@ -53,6 +55,20 @@ export const ListView = () => {
       <div className="space-y-4">
         <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mt-6 border-b border-slate-200 dark:border-slate-700 pb-2">Pendentes ({incompleteTasks.length})</h3>
         <div className="space-y-4"><AnimatePresence>{incompleteTasks.length > 0 ? incompleteTasks.map((task, index) => ( <motion.div key={task.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50, transition: { duration: 0.2 } }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} draggable onDragStart={(e) => handleDragStart(e, index)} onDragEnter={(e) => handleDragEnter(e, index)} onDragEnd={handleDragEnd} onDragOver={(e) => e.preventDefault()} className="cursor-grab active:cursor-grabbing"> <TaskItem task={task} /> </motion.div> )) : <p className="text-slate-500 dark:text-slate-400 text-center py-4">Nenhuma tarefa pendente. Hora de relaxar! 🏖️</p>} </AnimatePresence> </div>
+        
+        {/* Botão de Paginação */}
+        {hasMoreTasks && (
+            <div className="flex justify-center mt-6">
+                <button 
+                    onClick={fetchMoreTasks}
+                    disabled={isFetchingMore}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition flex items-center gap-2"
+                >
+                    {isFetchingMore ? 'Carregando...' : 'Carregar mais tarefas'}
+                </button>
+            </div>
+        )}
+
         <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mt-8 border-b border-slate-200 dark:border-slate-700 pb-2">Concluídas ({completedTasks.length})</h3>
         <div className="space-y-4"><AnimatePresence>{completedTasks.length > 0 ? completedTasks.map(task => ( <motion.div key={task.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: 50, transition: { duration: 0.2 } }}> <TaskItem task={task} /> </motion.div> )) : <p className="text-slate-500 dark:text-slate-400 text-center py-4">Nenhuma tarefa concluída ainda.</p>} </AnimatePresence></div>
       </div>
