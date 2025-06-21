@@ -9,9 +9,9 @@ import { ListView } from './views/ListView';
 import { CalendarView } from './views/CalendarView';
 import { DashboardView } from './views/DashboardView';
 
-// Componente para a aplicação quando o usuário está logado
 function TaskMasterApp() {
-    const { loadingTasks } = useTasks();
+    // ALTERADO: de loadingTasks para isLoading
+    const { isLoading } = useTasks();
     const [view, setView] = useState('list');
     const [notificationPermission, setNotificationPermission] = useState('default');
 
@@ -33,7 +33,8 @@ function TaskMasterApp() {
             />
             <main className="container mx-auto p-4 max-w-5xl">
                 <Header view={view} setView={setView} />
-                {loadingTasks ? (
+                {/* ALTERADO: de loadingTasks para isLoading */}
+                {isLoading ? (
                     <div className="text-center py-10 text-slate-500 dark:text-slate-400">Carregando suas tarefas...</div>
                 ) : (
                     <>
@@ -47,10 +48,9 @@ function TaskMasterApp() {
     );
 }
 
-// Componente "roteador"
 export default function App() {
     const { currentUser, isLoading } = useAuth();
-    const [authView, setAuthView] = useState('login'); // 'login' ou 'signup'
+    const [authView, setAuthView] = useState('login'); 
 
     if (isLoading) {
         return <div className="min-h-screen bg-slate-100 dark:bg-slate-900 flex justify-center items-center"><p className="text-slate-600 dark:text-slate-400">Carregando aplicação...</p></div>;
