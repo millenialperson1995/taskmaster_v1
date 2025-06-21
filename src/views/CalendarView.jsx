@@ -23,14 +23,15 @@ export const CalendarView = () => {
             <Button onClick={() => changeMonth(-1)} variant="ghost" size="icon">
                 <ChevronLeft />
             </Button>
-            <h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200">
+            <h2 className="text-xl font-semibold text-center text-slate-700 dark:text-slate-200">
                 {currentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}
             </h2>
             <Button onClick={() => changeMonth(1)} variant="ghost" size="icon">
                 <ChevronRight />
             </Button>
         </div>
-        <div className="grid grid-cols-7 gap-1 text-center font-medium text-slate-600 dark:text-slate-400">
+        {/* MODIFICADO: Esta div agora só aparece em telas de desktop */}
+        <div className="hidden md:grid grid-cols-7 gap-1 text-center font-medium text-slate-600 dark:text-slate-400">
             {daysOfWeek.map(day => <div key={day} className="py-2">{day}</div>)}
         </div>
         <CalendarGrid 

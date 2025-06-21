@@ -8,12 +8,14 @@ import { Header } from './components/layout/Header';
 import { ListView } from './views/ListView';
 import { CalendarView } from './views/CalendarView';
 import { DashboardView } from './views/DashboardView';
+import { useNotificationScheduler } from './hooks/useNotificationScheduler'; // ADICIONADO
 
 function TaskMasterApp() {
-    // ALTERADO: de loadingTasks para isLoading
     const { isLoading } = useTasks();
     const [view, setView] = useState('list');
     const [notificationPermission, setNotificationPermission] = useState('default');
+
+    useNotificationScheduler(); // ADICIONADO: Ativa o agendador de notificações
 
     useEffect(() => {
         if ("Notification" in window) {
@@ -33,7 +35,6 @@ function TaskMasterApp() {
             />
             <main className="container mx-auto p-4 max-w-5xl">
                 <Header view={view} setView={setView} />
-                {/* ALTERADO: de loadingTasks para isLoading */}
                 {isLoading ? (
                     <div className="text-center py-10 text-slate-500 dark:text-slate-400">Carregando suas tarefas...</div>
                 ) : (

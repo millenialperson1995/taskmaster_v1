@@ -12,12 +12,15 @@ export const TaskForm = ({ initialData = {}, onCancel, onSaveCallback }) => {
   const [text, setText] = useState(initialData.text || '');
   const [category, setCategory] = useState(initialData.category || categories[0] || '');
   const [priority, setPriority] = useState(initialData.priority || 'Média');
-  const [dueDate, setDueDate] = useState(initialData.dueDate || '');
+  const [dueDate, setDueDate] = useState(initialData.dueDate?.split('T')[0] || '');
   const [reminderTime, setReminderTime] = useState(initialData.reminderTime || '');
   const [recurrence, setRecurrence] = useState(initialData.recurrence || 'none');
   const [newCategory, setNewCategory] = useState('');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   
+  // ADICIONADO: Pega a data de hoje no formato YYYY-MM-DD para usar no atributo 'min' do input
+  const todayString = new Date().toISOString().split('T')[0];
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
@@ -88,7 +91,16 @@ export const TaskForm = ({ initialData = {}, onCancel, onSaveCallback }) => {
           
           <div className="flex flex-col">
             <label className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Data</label>
-            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            {/* MODIFICADO: Adicionado o atributo 'min'
+              - Se 'initialData.id' NÃO existir (criando tarefa), o 'min' é a data de hoje.
+              - Se 'initialData.id' existir (editando tarefa), o 'min' não é aplicado (undefined).
+            */}
+            <Input 
+              type="date" 
+              value={dueDate} 
+              onChange={(e) => setDueDate(e.target.value)} 
+              min={!initialData.id ? todayString : undefined}
+            />
           </div>
           
           <div className="flex flex-col">
