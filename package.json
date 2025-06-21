@@ -1,8 +1,11 @@
 {
   "name": "taskmaster",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "author": "Rafael Nascimento",
+  "description": "O TaskMaster é uma aplicação web moderna e intuitiva, projetada para ajudar os usuários a organizar suas tarefas diárias e alcançar suas metas com eficiência.",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
