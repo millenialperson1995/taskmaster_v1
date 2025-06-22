@@ -9,7 +9,6 @@ import { ListView } from './views/ListView';
 import { CalendarView } from './views/CalendarView';
 import { DashboardView } from './views/DashboardView';
 import { useNotificationScheduler } from './hooks/useNotificationScheduler';
-// CORRIGIDO: Importação sem chaves para um export default
 import usePushNotifications from './hooks/usePushNotifications'; 
 
 function TaskMasterApp() {
