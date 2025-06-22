@@ -15,21 +15,31 @@ const pwaManifest = {
   start_url: '/',
   icons: [
     {
-      src: 'pwa-192x192.png', // Lembre-se de colocar este arquivo na pasta `public`
+      src: 'checklist.svg',    // Seu logo SVG. Navegadores modernos o usarão.
+      sizes: 'any',            // 'any' é usado para SVGs, pois são escaláveis.
+      type: 'image/svg+xml',
+    },
+    {
+      src: 'pwa-192x192.png',   // Fallback para dispositivos que não suportam ícones SVG no manifesto.
       sizes: '192x192',
       type: 'image/png',
     },
     {
-      src: 'pwa-512x512.png', // Lembre-se de colocar este arquivo na pasta `public`
+      src: 'pwa-512x512.png',   // Fallback em alta resolução.
       sizes: '512x512',
       type: 'image/png',
     },
     {
-      src: 'pwa-512x512.png', // Ícone "maskable" para melhor adaptação em diferentes formatos de ícones no Android
+      src: 'apple-touch-icon.png', // Ícone específico para dispositivos Apple.
+      sizes: '180x180',
+      type: 'image/png',
+    },
+    {
+      src: 'pwa-512x512.png',   // Ícone "maskable" para se adaptar a diferentes formatos no Android.
       sizes: '512x512',
       type: 'image/png',
       purpose: 'any maskable',
-    },
+    }
   ],
 };
 
@@ -39,24 +49,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      // A estratégia 'injectManifest' é usada para injetar o precache manifest
-      // em um service worker customizado, permitindo lógica personalizada.
       strategies: 'injectManifest',
-
-      // Define o tipo de registro do service worker para se atualizar automaticamente
-      // quando uma nova versão estiver disponível.
       registerType: 'autoUpdate',
-
-      // Caminho para o seu service worker customizado.
       srcDir: 'src',
       filename: 'service-worker.js',
-
-      // Define os padrões de arquivos a serem incluídos no precache.
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
       },
-
-      // Usa a constante do manifesto definida acima.
       manifest: pwaManifest,
     }),
   ],
