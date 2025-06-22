@@ -1,50 +1,62 @@
-import { createContext, useState, useEffect } from 'react';
-import { AppwriteException } from 'appwrite';
-import { account, ID } from '../api/appwrite';
+import { createContext } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  checkUserSession,
+  loginUser,
+  signupUser,
+  logoutUser,
+} from '../api/appwrite';
+import toast from 'react-hot-toast';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const user = await account.get();
-        setCurrentUser(user);
-      } catch (e) {
-        // Agora 'e instanceof AppwriteException' funcionará corretamente
-        if (e instanceof AppwriteException && e.code !== 401) {
-          console.error("Erro ao verificar sessão:", e);
-        }
-        setCurrentUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkSession();
-  }, []);
+  // Query para buscar o usuário logado.
+  const { data: currentUser, isLoading: isLoadingUser } = useQuery({
+    queryKey: ['user'],
+    queryFn: checkUserSession,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
-  const login = async (email, password) => {
-    await account.createEmailPasswordSession(email, password);
-    const user = await account.get();
-    setCurrentUser(user);
-  };
+  // Mutação para login
+  const { mutate: login, isPending: isLoggingIn } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      toast.success(`Bem-vindo(a) de volta!`);
+    },
+    // O tratamento de erro foi movido para o componente para exibir na UI
+  });
 
-  const signup = async (email, password, name) => {
-    await account.create(ID.unique(), email, password, name);
-    await login(email, password); // Auto-login after signup
-  };
+  // Mutação para cadastro, com auto-login corrigido
+  const { mutate: signup, isPending: isSigningUp } = useMutation({
+    mutationFn: signupUser,
+    onSuccess: async (newUser, variables) => {
+      // CORREÇÃO: Usamos a senha das 'variables' da mutação para o auto-login.
+      await loginUser({ email: newUser.email, password: variables.password });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      toast.success('Conta criada com sucesso!');
+    },
+  });
 
-  const logout = async () => {
-    await account.deleteSession('current');
-    setCurrentUser(null);
-  };
+  // Mutação para logout
+  const { mutate: logout, isPending: isLoggingOut } = useMutation({
+    mutationFn: logoutUser,
+    onSuccess: () => {
+      queryClient.clear();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Erro ao fazer logout.');
+    },
+  });
 
   const value = {
     currentUser,
-    isLoading,
+    // Unifica todos os estados de carregamento em um único booleano
+    isLoading: isLoadingUser || isLoggingIn || isSigningUp || isLoggingOut,
     login,
     signup,
     logout,

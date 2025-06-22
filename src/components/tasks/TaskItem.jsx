@@ -29,7 +29,8 @@ const TaskItemComponent = ({ task }) => {
   return (
     <div className={`p-4 bg-white dark:bg-slate-800/50 rounded-lg shadow-sm transition-all duration-300 ${task.completed ? 'opacity-60' : ''} border-l-4 ${isOverdue ? 'border-red-500' : 'border-transparent dark:border-slate-800'}`}>
       <div className="flex items-start gap-4">
-        <div className="mt-1 flex items-center justify-center h-5 w-5">{ isRecurring ? (<Repeat size={16} className="text-purple-500" title={`Esta tarefa repete-se ${task.recurrence === 'daily' ? 'diariamente' : task.recurrence === 'weekly' ? 'semanalmente' : 'mensalmente'}`} />) : (<input type="checkbox" checked={task.completed} onChange={() => toggleComplete(task.id)} className="h-5 w-5 rounded border-gray-300 dark:border-slate-600 text-blue-600 bg-slate-100 dark:bg-slate-900 focus:ring-blue-500 cursor-pointer" />) }</div>
+        {/* Lógica do checkbox foi ajustada para passar a task inteira */}
+        <div className="mt-1 flex items-center justify-center h-5 w-5">{ isRecurring ? (<Repeat size={16} className="text-purple-500" title={`Esta tarefa repete-se ${task.recurrence === 'daily' ? 'diariamente' : task.recurrence === 'weekly' ? 'semanalmente' : 'mensalmente'}`} />) : (<input type="checkbox" checked={task.completed} onChange={() => toggleComplete(task)} className="h-5 w-5 rounded border-gray-300 dark:border-slate-600 text-blue-600 bg-slate-100 dark:bg-slate-900 focus:ring-blue-500 cursor-pointer" />) }</div>
         <div className="flex-grow">
           <p className={`text-slate-800 dark:text-slate-200 ${task.completed ? 'line-through' : ''}`}>{task.text}</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 dark:text-slate-400 mt-1">

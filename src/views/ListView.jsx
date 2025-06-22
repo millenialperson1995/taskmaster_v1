@@ -6,7 +6,13 @@ import { TaskFilters } from '../components/tasks/TaskFilters';
 import { Button } from '../components/ui/Button';
 
 export const ListView = () => {
-  const { filteredTasks, hasMoreTasks, fetchMoreTasks, isFetchingMore } = useTasks();
+  // O hook 'useTasks' agora retorna os valores do React Query
+  const { 
+    filteredTasks, 
+    hasMoreTasks, 
+    fetchMoreTasks, 
+    isFetchingMore 
+  } = useTasks();
 
   const incompleteTasks = useMemo(() => filteredTasks.filter(t => !t.completed), [filteredTasks]);
   const completedTasks = useMemo(() => filteredTasks.filter(t => t.completed), [filteredTasks]);
@@ -28,7 +34,7 @@ export const ListView = () => {
         {hasMoreTasks && (
             <div className="flex justify-center mt-6">
                 <Button 
-                    onClick={fetchMoreTasks}
+                    onClick={() => fetchMoreTasks()}
                     disabled={isFetchingMore}
                     variant="primary"
                     size="md"
